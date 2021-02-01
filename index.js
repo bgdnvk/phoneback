@@ -28,16 +28,31 @@ app.delete('api/persons/:id', (req, res) => {
 
 const generateId = () => Math.floor(Math.random()*Math.floor(999))
 
-app.post('api/persons', (req, res) => {
-    const body = req.body
+app.post('/api/persons', (request, response) => {
+    const body = request.body
 
-    if(!body.content){
-        return res.status(404)
+    if(!body || !body.name || !body.number){
+        return response.status(400).json({
+            error: 'content missing'
+        })
     }
-    const person = {
-        
+
+    const foundName = persons.find(p => p.name === body.name)
+    if(foundName){
+        return response.status(400).json({
+            error: "name must be unique"
+        })
     }
-})
+
+    const newPerson = {
+        id: generateId(),
+        name: body.name,
+        number: body.number
+    }
+    console.log(body);
+    response.json(newPerson)
+    persons.concat(newPerson)
+  })
 
 app.get('/info', (req, res) => {
     res.send(`Phonebook has info for ${persons.length} people

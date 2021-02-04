@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 const uniqueValidator = require('mongoose-unique-validator')
+require('dotenv').config();
+const url = process.env.MONGODB_URI
+// const url2='mongodb+srv://fullstack:fullstack13@cluster0.n98wd.mongodb.net/contacts?retryWrites=true&w=majority'
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
   .then(result => {

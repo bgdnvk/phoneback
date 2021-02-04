@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -37,8 +38,8 @@ app.get('/api/persons/:id', (req, res) => {
     Person.findById(id)
         .then(person => {
             person
-            ? res.json(person)
-            : res.status(404).end()
+                ? res.json(person)
+                : res.status(404).end()
         })
         .catch(e=>next(e))
 })
@@ -82,22 +83,22 @@ app.post('/api/persons', (request, response) => {
     const person = new Person({
         name: body.name,
         number: body.number
-      })
-      //promise chain clearing
-      // person.save()
-      //   .then(savedP => {
-      //   res.json(savedP)
-      // })
-      //   .catch(e => next(e))
-      person
+    })
+    //promise chain clearing
+    // person.save()
+    //   .then(savedP => {
+    //   res.json(savedP)
+    // })
+    //   .catch(e => next(e))
+    person
         .save()
         .then( savedP => savedP.toJSON())
         .then( savedAndFormattedP => {
-          res.json(savedAndFormattedP)
+            res.json(savedAndFormattedP)
         })
         .catch(e => next(e))
     
-  })
+})
 
 app.get('/info', (req, res) => {
 
@@ -114,25 +115,25 @@ app.put('/api/persons/:id', (request, response, next) => {
     const body = request.body
   
     const person = new Person({
-      name: body.name,
-      number: body.number
+        name: body.name,
+        number: body.number
     })
   
     Person.findByIdAndUpdate(request.params.id, person, { new: true })
-      .then(updatedPerson => {
-        response.json(updatedPerson)
-      })
-      .catch(error => next(error))
+        .then(updatedPerson => {
+            response.json(updatedPerson)
+        })
+        .catch(error => next(error))
 })
 
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
-  }
+}
   
 app.use(unknownEndpoint)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`)
 })

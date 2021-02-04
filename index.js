@@ -3,9 +3,9 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 
-app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
+app.use(express.static('build'))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postToken'))
 
 morgan.token('postToken', (req, res, param) => {

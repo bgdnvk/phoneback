@@ -3,6 +3,8 @@ const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 
+const Person = require('./models/person')
+
 app.use(cors())
 app.use(express.json())
 app.use(express.static('build'))
@@ -23,19 +25,32 @@ let persons = [
 
 app.get('/api/persons', (req, res) => {
     // console.log(req);
-    res.json(persons)
+    // res.json(persons)
+    Person.find({})
+        .then(p => res.json(p))
 })
 
 app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    let person = persons.find(p => p.id )
-    res.json(person)
+    const id = req.params.id
+    // let person = persons.find(p => p.id )
+    // res.json(person)
+    Person.findById(id)
+        .then(person => {
+            person
+            ? res.json(person)
+            : res.status(404).end()
+        })
+        .catch(e=>next(e))
 })
 
 app.delete('api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(p => p.id !== id)
-    res.status(204).end()
+    const id = req.params.id
+    // persons = persons.filter(p => p.id !== id)
+    // res.status(204).end()
+    Person.findByIdAndRemove(id)
+        .then(p => res.status(204).end())
+        .catch(e => next(e))
+
 })
 
 const generateId = () => Math.floor(Math.random()*Math.floor(999))
@@ -49,28 +64,67 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    const foundName = persons.find(p => p.name === body.name)
-    if(foundName){
-        return response.status(400).json({
-            error: "name must be unique"
-        })
-    }
+    // const foundName = persons.find(p => p.name === body.name)
+    // if(foundName){
+    //     return response.status(400).json({
+    //         error: "name must be unique"
+    //     })
+    // }
 
-    const newPerson = {
-        id: generateId(),
+    // const newPerson = {
+    //     id: generateId(),
+    //     name: body.name,
+    //     number: body.number
+    // }
+    // console.log(body);
+    // response.json(newPerson)
+    // persons.concat(newPerson)
+    const person = new Person({
         name: body.name,
         number: body.number
-    }
-    console.log(body);
-    response.json(newPerson)
-    persons.concat(newPerson)
+      })
+      //promise chain clearing
+      // person.save()
+      //   .then(savedP => {
+      //   res.json(savedP)
+      // })
+      //   .catch(e => next(e))
+      person
+        .save()
+        .then( savedP => savedP.toJSON())
+        .then( savedAndFormattedP => {
+          res.json(savedAndFormattedP)
+        })
+        .catch(e => next(e))
+    
   })
 
 app.get('/info', (req, res) => {
-    res.send(`Phonebook has info for ${persons.length} people
-    <br>
-    ${new Date()}`)
+
+    Person.find({})
+        .then( persons => res.send(`Phonebook has info for ${persons.length} people <br/
+        ${Date()}>`))
+
+    // res.send(`Phonebook has info for ${persons.length} people
+    // <br>
+    // ${new Date()}`)
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+  
+    const person = new Person({
+      name: body.name,
+      number: body.number
+    })
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+})
+
 
 const unknownEndpoint = (request, response) => {
     response.status(404).send({ error: 'unknown endpoint' })
